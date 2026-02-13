@@ -86,13 +86,18 @@ jobs:
           body: "${{ github.event.head_commit.url }} ${{ github.event.head_commit.message }}"
           artifacts: webleste-loader.tar.zst
 
-  deployr58:
-    name: Deploy to celeste.r58playz.dev
+  deploy-pages:
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     needs: build
     permissions:
       contents: read
-      deployments: write
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Get artifact
@@ -101,10 +106,11 @@ jobs:
           name: webleste-loader
           path: dist/
 
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: pages deploy dist --project-name=celeste-wasm-threads
+          path: dist/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
