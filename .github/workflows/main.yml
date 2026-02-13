@@ -1,11 +1,5 @@
 name: Build
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - threads-v2
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
